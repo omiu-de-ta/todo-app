@@ -1,6 +1,7 @@
 //script.js
 let tasks = [];
 let filter = "all";
+const dateInput = document.getElementById("dateInput");
 
 const savedTasks = localStorage.getItem("tasks");
 if (savedTasks) {
@@ -14,17 +15,22 @@ const list = document.getElementById("taskList");
 button.addEventListener("click", () => {
   const taskText = input.value;
 
-  if (taskText === "") return;
-
+  if (taskText.trim() === "") return;
+  //「見た目は空じゃないけど、実質空」を防ぐため
+  
   tasks.push({
+    id: Date.now(),
     text: taskText,
-    done: false
+    done: false,
+    deadline: dateInput.value
   });
 
   filter = "all";//追加したら全てに戻す
 
+  saveTasks();
   render();
   input.value = "";
+  dateInput.value = "";
 });
 
 function render() {
@@ -44,7 +50,7 @@ function render() {
     document.getElementById("doneBtn").classList.add("active");
   }
 
-  tasks.forEach((task, index) => {
+  tasks.forEach((task) => {
     if (filter === "active" && task.done) return;
     if (filter === "done" && !task.done) return;
     const li = document.createElement("li");
@@ -53,10 +59,16 @@ function render() {
     const span = document.createElement("span");
     span.textContent = task.done ? "☑ " : "□ ";
     span.textContent += task.text;
+    
+    span.textContent += task.deadline
+      ? `（期限: ${task.deadline}）`
+      : "（期限なし）";
+    
 
     // クリックで状態切り替え
     span.addEventListener("click", () => {
       task.done = !task.done;
+      saveTasks();
       render();
     });
 
@@ -65,7 +77,8 @@ function render() {
     deleteBtn.textContent = "削除";
 
     deleteBtn.addEventListener("click", () => {
-      tasks.splice(index, 1);
+      tasks = tasks.filter(t => t.id !== task.id);
+      saveTasks();
       render();
     });
 
@@ -75,7 +88,6 @@ function render() {
     list.appendChild(li);
   });
 
-  localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
 document.getElementById("allBtn").onclick = () => {
@@ -92,5 +104,9 @@ document.getElementById("doneBtn").onclick = () => {
   filter = "done";
   render();
 };
+
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
 render();
