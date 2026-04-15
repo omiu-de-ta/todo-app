@@ -1,0 +1,28 @@
+<!--index.html-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>タスク管理アプリ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>タスク管理</h1>
+  <div class="input-area">
+  <input id="taskInput" type="text" placeholder="タスクを入力">
+  <input id="dateInput" type="date">
+  <button id="addBtn">追加</button>
+  </div>
+
+  <div class="filter-area">
+  <button id="allBtn">すべて</button>
+  <button id="activeBtn">未完了</button>
+  <button id="completedBtn">完了</button>
+  </div>
+
+  <ul id="taskList"></ul>
+
+  <script src="script.js"></script>
+</body>
+</html>

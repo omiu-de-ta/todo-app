@@ -1,0 +1,110 @@
+/*style.css*/
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  max-width: 520px;
+  margin: 40px auto;
+  background: #f7f8fc;
+  color: #333;
+}
+
+/* タイトル */
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 入力エリア */
+input {
+  padding: 10px;
+  width: 65%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus {
+  border-color: #4f8cff;
+  box-shadow: 0 0 0 2px rgba(79,140,255,0.2);
+}
+
+/* ボタン共通 */
+button {
+  padding: 9px 12px;
+  margin-left: 5px;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background: #e0e0e0;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #d0d0d0;
+}
+
+/* 追加ボタンだけ強調 */
+#addBtn {
+  background: #4f8cff;
+  color: white;
+}
+
+#addBtn:hover {
+  background: #3a6fe0;
+}
+
+/* フィルターボタン */
+#allBtn, #activeBtn, #completedBtn {
+  margin-top: 10px;
+}
+
+/* アクティブ状態 */
+.active {
+  background-color: #4f8cff;
+  color: white;
+}
+
+/* リスト */
+ul {
+  padding: 0;
+  margin-top: 20px;
+}
+
+/* タスクカード */
+li {
+  list-style: none;
+  margin: 10px 0;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: 0.2s;
+}
+
+/* ホバーで浮く感じ */
+li:hover {
+  transform: translateY(-2px);
+}
+
+/* 完了タスク */
+li span {
+  cursor: pointer;
+}
+
+li span.completed {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+/* 削除ボタン */
+li button {
+  background: #ff6b6b;
+  color: white;
+}
+
+li button:hover {
+  background: #e05555;
+}
