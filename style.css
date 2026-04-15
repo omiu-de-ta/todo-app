@@ -54,7 +54,7 @@ button:hover {
 }
 
 /* フィルターボタン */
-#allBtn, #activeBtn, #doneBtn {
+#allBtn, #activeBtn, #completedBtn {
   margin-top: 10px;
 }
 
@@ -84,6 +84,14 @@ li {
   transition: 0.2s;
 }
 
+li.selected {
+  border: 2px solid #4f8cff;
+  background: #f0f6ff;
+}
+li:hover {
+  border: 2px solid #4f8cff;
+}
+
 /* ホバーで浮く感じ */
 li:hover {
   transform: translateY(-2px);
@@ -94,7 +102,7 @@ li span {
   cursor: pointer;
 }
 
-li span.done {
+li span.completed {
   text-decoration: line-through;
   color: #aaa;
 }

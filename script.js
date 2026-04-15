@@ -18,16 +18,18 @@ button.addEventListener("click", () => {
   if (taskText.trim() === "") return;
   //「見た目は空じゃないけど、実質空」を防ぐため
   
-  tasks.push({
+  const newTask = {
     id: Date.now(),
     text: taskText,
-    done: false,
+    completed: false,
     deadline: dateInput.value
-  });
+  };
+
+  tasks.push(newTask);
 
   filter = "all";//追加したら全てに戻す
 
-  saveTasks();
+  saves();
   render();
   input.value = "";
   dateInput.value = "";
@@ -38,7 +40,7 @@ function render() {
 
   document.getElementById("allBtn").classList.remove("active");
   document.getElementById("activeBtn").classList.remove("active");
-  document.getElementById("doneBtn").classList.remove("active");
+  document.getElementById("completedBtn").classList.remove("active");
 
   if (filter === "all") {
     document.getElementById("allBtn").classList.add("active");
@@ -46,29 +48,29 @@ function render() {
   if (filter === "active") {
     document.getElementById("activeBtn").classList.add("active");
   }
-  if (filter === "done") {
-    document.getElementById("doneBtn").classList.add("active");
+  if (filter === "completed") {
+    document.getElementById("completedBtn").classList.add("active");
   }
 
   tasks.forEach((task) => {
-    if (filter === "active" && task.done) return;
-    if (filter === "done" && !task.done) return;
+    if (filter === "active" && task.completed) return;
+    if (filter === "completed" && !task.completed) return;
     const li = document.createElement("li");
-
+    
     // チェック表示
     const span = document.createElement("span");
-    span.textContent = task.done ? "☑ " : "□ ";
-    span.textContent += task.text;
-    
-    span.textContent += task.deadline
-      ? `（期限: ${task.deadline}）`
-      : "（期限なし）";
-    
+    span.textContent = (task.completed ? "☑ " : "□ ")+
+    task.text +
+    (task.deadline ? " 期限:" + task.deadline : "");
 
+    if (task.completed) {
+    span.classList.add("completed");
+    }
+    
     // クリックで状態切り替え
     span.addEventListener("click", () => {
-      task.done = !task.done;
-      saveTasks();
+      task.completed = !task.completed;
+      saves();
       render();
     });
 
@@ -78,7 +80,7 @@ function render() {
 
     deleteBtn.addEventListener("click", () => {
       tasks = tasks.filter(t => t.id !== task.id);
-      saveTasks();
+      saves();
       render();
     });
 
@@ -100,12 +102,12 @@ document.getElementById("activeBtn").onclick = () => {
   render();
 };
 
-document.getElementById("doneBtn").onclick = () => {
-  filter = "done";
+document.getElementById("completedBtn").onclick = () => {
+  filter = "completed";
   render();
 };
 
-function saveTasks() {
+function saves() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
