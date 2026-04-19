@@ -1,13 +1,59 @@
 //script.js
-let tasks = [];
+class TaskManager {
+  constructor(tasks = []) {
+    this.tasks = tasks;
+  }
+
+  addTask(text, deadline) {
+    if (text.trim() === "") return;
+
+    const newTask = {
+      id: Date.now(),
+      text,
+      completed: false,
+      deadline
+    };
+
+    this.tasks.push(newTask);
+  }
+
+  toggleTask(id) {
+    this.tasks = this.tasks.map(task =>
+      task.id === id
+        ? { ...task, completed: !task.completed }
+        : task
+    );
+  }
+
+  deleteTask(id) {
+    this.tasks = this.tasks.filter(task => task.id !== id);
+  }
+
+  getTasks() {
+    return this.tasks;
+  }
+}
+
+let initialTasks = [];
+const saves = localStorage.getItem("tasks");
+if (saves) {
+  try {
+    initialTasks = JSON.parse(saves) || [];
+  } catch (e) {
+    initialTasks = [];
+  }
+}
+
+const manager = new TaskManager(initialTasks);
+
 let filter = "all";
 const dateInput = document.getElementById("dateInput");
-
+/*
 const savedTasks = localStorage.getItem("tasks");
 if (savedTasks) {
   tasks = JSON.parse(savedTasks);
 }
-
+*/
 const input = document.getElementById("taskInput");
 const button = document.getElementById("addBtn");
 const list = document.getElementById("taskList");
