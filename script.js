@@ -1,9 +1,10 @@
 //script.js
+//データ管理
 class TaskManager {
   constructor(tasks = []) {
     this.tasks = tasks;
   }
-
+  //データ追加
   addTask(text, deadline) {
     if (text.trim() === "") return;
 
@@ -16,7 +17,7 @@ class TaskManager {
 
     this.tasks.push(newTask);
   }
-
+  //タスクの状態を変更：completedの値を反転させている
   toggleTask(id) {
     this.tasks = this.tasks.map(task =>
       task.id === id
@@ -24,21 +25,22 @@ class TaskManager {
         : task
     );
   }
-
+  //データの削除
   deleteTask(id) {
     this.tasks = this.tasks.filter(task => task.id !== id);
   }
-
+  //最新のデータの状態を外に渡す関数
   getTasks() {
     return this.tasks;
   }
 }
 
 let initialTasks = [];
-const saves = localStorage.getItem("tasks");
-if (saves) {
+//データの読み込み←関数化するか後で検討
+const loadData = localStorage.getItem("tasks");
+if (loadData) {
   try {
-    initialTasks = JSON.parse(saves) || [];
+    initialTasks = JSON.parse(loadData) || [];
   } catch (e) {
     initialTasks = [];
   }
@@ -60,10 +62,11 @@ const list = document.getElementById("taskList");
 
 button.addEventListener("click", () => {
   const taskText = input.value;
-
+  
   if (taskText.trim() === "") return;
   //「見た目は空じゃないけど、実質空」を防ぐため
-  
+  manager.addTask(input.value, dateInput.value);
+  /*
   const newTask = {
     id: Date.now(),
     text: taskText,
@@ -72,31 +75,34 @@ button.addEventListener("click", () => {
   };
 
   tasks.push(newTask);
-
+*/
   filter = "all";//追加したら全てに戻す
 
-  saves();
+  saveData();
   render();
   input.value = "";
   dateInput.value = "";
+  console.log(button);
 });
 
 function render() {
   list.innerHTML = "";
 
-  document.getElementById("allBtn").classList.remove("active");
-  document.getElementById("activeBtn").classList.remove("active");
-  document.getElementById("completedBtn").classList.remove("active");
+  const tasks = manager.getTasks();
 
-  if (filter === "all") {
-    document.getElementById("allBtn").classList.add("active");
-  }
-  if (filter === "active") {
-    document.getElementById("activeBtn").classList.add("active");
-  }
-  if (filter === "completed") {
-    document.getElementById("completedBtn").classList.add("active");
-  }
+  // document.getElementById("allBtn").classList.remove("active");
+  // document.getElementById("activeBtn").classList.remove("active");
+  // document.getElementById("completedBtn").classList.remove("active");
+
+  // if (filter === "all") {
+  //   document.getElementById("allBtn").classList.add("active");
+  // }
+  // if (filter === "active") {
+  //   document.getElementById("activeBtn").classList.add("active");
+  // }
+  // if (filter === "completed") {
+  //   document.getElementById("completedBtn").classList.add("active");
+  // }
 
   tasks.forEach((task) => {
     if (filter === "active" && task.completed) return;
@@ -115,8 +121,9 @@ function render() {
     
     // クリックで状態切り替え
     span.addEventListener("click", () => {
-      task.completed = !task.completed;
-      saves();
+      //task.completed = !task.completed;
+       manager.toggleTask(task.id);
+      saveData();
       render();
     });
 
@@ -125,8 +132,9 @@ function render() {
     deleteBtn.textContent = "削除";
 
     deleteBtn.addEventListener("click", () => {
-      tasks = tasks.filter(t => t.id !== task.id);
-      saves();
+      //tasks = tasks.filter(t => t.id !== task.id);
+      manager.deleteTask(task.id);
+      saveData();
       render();
     });
 
@@ -153,8 +161,10 @@ document.getElementById("completedBtn").onclick = () => {
   render();
 };
 
-function saves() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+//データを保存する関数
+function saveData() {
+  //localStorage.setItem("tasks", JSON.stringify(tasks));
+  localStorage.setItem("tasks", JSON.stringify(manager.getTasks()));
 }
 
 render();
