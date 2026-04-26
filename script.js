@@ -36,6 +36,7 @@ class TaskManager {
 }
 
 let initialTasks = [];
+
 //データの読み込み←関数化するか後で検討
 const loadData = localStorage.getItem("tasks");
 if (loadData) {
@@ -49,41 +50,17 @@ if (loadData) {
 const manager = new TaskManager(initialTasks);
 
 let filter = "all";
+
+
 const dateInput = document.getElementById("dateInput");
-/*
-const savedTasks = localStorage.getItem("tasks");
-if (savedTasks) {
-  tasks = JSON.parse(savedTasks);
-}
-*/
-const input = document.getElementById("taskInput");
-const addButton = document.getElementById("addBtn");
+const taskInput = document.getElementById("taskInput");
+const addBtn = document.getElementById("addBtn");
 const list = document.getElementById("taskList");
+const allBtn = document.getElementById("allBtn");
+const activeBtn = document.getElementById("activeBtn");
+const completedBtn = document.getElementById("completedBtn");
 
-addButton.addEventListener("click", () => {
-  const taskText = input.value;
-  
-  if (taskText.trim() === "") return;
-  //「見た目は空じゃないけど、実質空」を防ぐため
-  manager.addTask(input.value, dateInput.value);
-  /*
-  const newTask = {
-    id: Date.now(),
-    text: taskText,
-    completed: false,
-    deadline: dateInput.value
-  };
 
-  tasks.push(newTask);
-*/
-  filter = "all";//追加したら全てに戻す
-
-  saveData();
-  render();
-  input.value = "";
-  dateInput.value = "";
-  console.log(addButton);
-});
 
 function render() {
   list.innerHTML = "";
@@ -145,6 +122,23 @@ function render() {
   });
 
 }
+
+//イベント操作
+addBtn.addEventListener("click", () => {
+  const taskText = taskInput.value;
+  
+  if (taskText.trim() === "") return;
+  //「見た目は空じゃないけど、実質空」を防ぐため
+  manager.addTask(taskInput.value, dateInput.value);
+  
+  filter = "all";//追加したら全てに戻す
+
+  saveData();
+  render();
+  taskInput.value = "";
+  dateInput.value = "";
+  console.log(addBtn);
+});
 
 document.getElementById("allBtn").onclick = () => {
   filter = "all";
