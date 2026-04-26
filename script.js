@@ -60,8 +60,7 @@ const allBtn = document.getElementById("allBtn");
 const activeBtn = document.getElementById("activeBtn");
 const completedBtn = document.getElementById("completedBtn");
 
-
-
+//表示する
 function render() {
   list.innerHTML = "";
 
