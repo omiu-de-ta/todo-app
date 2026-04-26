@@ -57,10 +57,10 @@ if (savedTasks) {
 }
 */
 const input = document.getElementById("taskInput");
-const button = document.getElementById("addBtn");
+const addButton = document.getElementById("addBtn");
 const list = document.getElementById("taskList");
 
-button.addEventListener("click", () => {
+addButton.addEventListener("click", () => {
   const taskText = input.value;
   
   if (taskText.trim() === "") return;
@@ -82,7 +82,7 @@ button.addEventListener("click", () => {
   render();
   input.value = "";
   dateInput.value = "";
-  console.log(button);
+  console.log(addButton);
 });
 
 function render() {
