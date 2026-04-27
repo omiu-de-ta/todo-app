@@ -116,3 +116,7 @@ li button {
 li button:hover {
   background: #e05555;
 }
+
+li input {
+  margin-right: 5px;
+}
