@@ -165,12 +165,8 @@ function render() {
     });
 
     content = span;
-  }/*
-      li.appendChild(span);
-      li.appendChild(deleteBtn);
-      li.appendChild(editBtn);
-      taskList.appendChild(li);
-  */
+  }
+  
   const buttonGroup = document.createElement("div");
   buttonGroup.appendChild(editBtn);
   buttonGroup.appendChild(deleteBtn);
