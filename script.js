@@ -166,7 +166,7 @@ function render() {
 
     content = span;
   }
-  
+
   const buttonGroup = document.createElement("div");
   buttonGroup.appendChild(editBtn);
   buttonGroup.appendChild(deleteBtn);
@@ -182,7 +182,6 @@ function render() {
 function updateUI() {
   storage.saveData(manager.getTasks());
   render();
-  //console.log("更新した");
 }
 
 //追加ボタン
