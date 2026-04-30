@@ -66,6 +66,10 @@ let initialTasks = [];
 const storage = new Storage();
 const manager = new TaskManager(storage.loadData());
 
+// const state = {
+//   filter: "all",
+//   editingId: null
+// };←要相談
 let filter = "all";
 let editingId = null;
 
