@@ -77,7 +77,7 @@ const allBtn = document.getElementById("allBtn");
 const activeBtn = document.getElementById("activeBtn");
 const completedBtn = document.getElementById("completedBtn");
 
-
+/*
 //表示する関数
 function render() {
   taskList.innerHTML = "";
@@ -178,6 +178,7 @@ function render() {
   });
 
 }
+*/
 //アップデート後の処理をまとめた関数
 function updateUI() {
   storage.saveData(manager.getTasks());
@@ -217,5 +218,121 @@ completedBtn.onclick = () => {
   filter = "completed";
   render();
 };
+
+
+function render() {
+  taskList.innerHTML = "";
+  const tasks = manager.getTasks();
+
+  tasks.forEach(task => {
+    if (filter === "active" && task.completed) return;
+    if (filter === "completed" && !task.completed) return;
+
+    const li = createTaskItem(task);
+    taskList.appendChild(li);
+  });
+}
+
+function createTaskItem(task) {
+  const li = document.createElement("li");
+
+  const content =
+    editingId === task.id
+      ? createEditUI(task)
+      : createNormalUI(task);
+
+  const buttonGroup = createButtonGroup(task);
+
+  li.appendChild(content);
+  li.appendChild(buttonGroup);
+
+  return li;
+}
+
+function createNormalUI(task) {
+  const span = document.createElement("span");
+
+  span.textContent =
+    (task.completed ? "☑ " : "□ ") +
+    task.text +
+    (task.deadline ? " 期限:" + task.deadline : "");
+
+  if (task.completed) {
+    span.classList.add("completed");
+  }
+
+  span.addEventListener("click", () => {
+    manager.toggleTask(task.id);
+    updateUI();
+  });
+
+  return span;
+}
+
+
+function createEditUI(task) {
+  const container = document.createElement("div");
+
+  const input = document.createElement("input");
+  input.value = task.text;
+
+  const dateInputEdit = document.createElement("input");
+  dateInputEdit.type = "date";
+  dateInputEdit.value = task.deadline || "";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  saveBtn.addEventListener("click", () => {
+    if (input.value.trim() === "") {
+      alert("タスクを入力してください");
+      return;
+    }
+
+    manager.editTask(task.id, input.value, dateInputEdit.value);
+    editingId = null;
+    updateUI();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    editingId = null;
+    render();
+  });
+
+  container.appendChild(input);
+  container.appendChild(dateInputEdit);
+  container.appendChild(saveBtn);
+  container.appendChild(cancelBtn);
+
+  return container;
+}
+
+function createButtonGroup(task) {
+  const buttonGroup = document.createElement("div");
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "編集";
+
+  editBtn.addEventListener("click", () => {
+    editingId = task.id;
+    render();
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "削除";
+
+  deleteBtn.addEventListener("click", () => {
+    manager.deleteTask(task.id);
+    updateUI();
+  });
+
+  buttonGroup.appendChild(editBtn);
+  buttonGroup.appendChild(deleteBtn);
+
+  return buttonGroup;
+}
 
 render();
