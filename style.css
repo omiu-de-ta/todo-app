@@ -120,3 +120,15 @@ li button:hover {
 li input {
   margin-right: 5px;
 }
+
+/* 期限切れ（赤） */
+.deadline-overdue {
+  color: #ff3b30;
+  font-weight: bold;
+}
+
+/* 今日（オレンジ） */
+.deadline-today {
+  color: #ff9500;
+  font-weight: bold;
+}
