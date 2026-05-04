@@ -1,4 +1,5 @@
 //script.js
+
 //データ管理
 class TaskManager {
   constructor(tasks = []) {
@@ -37,12 +38,13 @@ class TaskManager {
       : task
     );
   }
-  //最新のデータの状態を外に渡す関数
+  //最新のデータの状態を外に渡す
   getTasks() {
     return this.tasks;
   }
 }
 
+//永続化
 class Storage {
   //データを保存
   saveData(tasks) {
@@ -66,8 +68,11 @@ let initialTasks = [];
 const storage = new Storage();
 const manager = new TaskManager(storage.loadData());
 
-let filter = "all";
-let editingId = null;
+const state = {
+   filter: "all",
+   editingId: null
+ };
+
 
 const dateInput = document.getElementById("dateInput");
 const taskInput = document.getElementById("taskInput");
@@ -78,106 +83,6 @@ const activeBtn = document.getElementById("activeBtn");
 const completedBtn = document.getElementById("completedBtn");
 
 
-//表示する関数
-function render() {
-  taskList.innerHTML = "";
-
-  const tasks = manager.getTasks();
-
-  tasks.forEach((task) => {
-    if (filter === "active" && task.completed) return;
-    if (filter === "completed" && !task.completed) return;
-    const li = document.createElement("li");
-    
-    // 削除ボタン
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "削除";
-
-    deleteBtn.addEventListener("click", () => {
-      manager.deleteTask(task.id);
-      updateUI();
-    });
-
-    //編集ボタン
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "編集";
-
-    editBtn.addEventListener("click", () => {
-      editingId = task.id;
-      render();
-    });
-
-  let content;
-
-  if (editingId === task.id) {
-    // 編集モード
-    const input = document.createElement("input");
-    input.value = task.text;
-
-    const dateInputEdit = document.createElement("input");
-    dateInputEdit.type = "date";
-    dateInputEdit.value = task.deadline || "";
-
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "保存";
-
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "キャンセル";
-
-    saveBtn.addEventListener("click", () => {
-      console.log("クリックされた"); 
-      if (input.value.trim() === "") {
-        alert("タスクを入力してください");
-        return;
-      }
-
-      manager.editTask(task.id, input.value, dateInputEdit.value);
-      editingId = null;
-      updateUI();
-    });
-
-    cancelBtn.addEventListener("click", () => {
-      editingId = null;
-      render();
-    });
-
-    content = document.createElement("div");
-    content.appendChild(input);
-    content.appendChild(dateInputEdit);
-    content.appendChild(saveBtn);
-    content.appendChild(cancelBtn);
-
-  } else {
-    //  通常表示
-    const span = document.createElement("span");
-    span.textContent =
-      (task.completed ? "☑ " : "□ ") +
-      task.text +
-      (task.deadline ? " 期限:" + task.deadline : "");
-
-    if (task.completed) {
-      span.classList.add("completed");
-    }
-     // クリックで状態切り替え
-    span.addEventListener("click", () => {
-      manager.toggleTask(task.id);
-      updateUI();
-    });
-
-    content = span;
-  }
-
-  const buttonGroup = document.createElement("div");
-  buttonGroup.appendChild(editBtn);
-  buttonGroup.appendChild(deleteBtn);
-
-  li.appendChild(content);
-  li.appendChild(buttonGroup);
-  taskList.appendChild(li);
-
-  });
-
-}
 //アップデート後の処理をまとめた関数
 function updateUI() {
   storage.saveData(manager.getTasks());
@@ -195,7 +100,7 @@ addBtn.addEventListener("click", () => {
   //「見た目は空じゃないけど、実質空」を防ぐため
   manager.addTask(taskInput.value, dateInput.value);
   
-  filter = "all";//追加したら全てに戻す
+  state.filter = "all";//追加したら全てに戻す
 
   updateUI();
 
@@ -204,18 +109,164 @@ addBtn.addEventListener("click", () => {
 });
 
 allBtn.onclick = () => {
-  filter = "all";
+  state.filter = "all";
   render();
 };
 
 activeBtn.onclick = () => {
-  filter = "active";
+  state.filter = "active";
   render();
 };
 
 completedBtn.onclick = () => {
-  filter = "completed";
+  state.filter = "completed";
   render();
 };
+
+//表示する
+function render() {
+  taskList.innerHTML = "";
+  const tasks = manager.getTasks();
+
+  tasks.forEach(task => {
+     if (shouldSkip(task)) return;
+
+    const li = createTaskItem(task);
+    taskList.appendChild(li);
+  });
+}
+
+//フィルタリング
+function shouldSkip(task) {
+  if (state.filter === "active" && task.completed) return true;
+  if (state.filter === "completed" && !task.completed) return true;
+  return false;
+}
+
+//li要素の組み立て
+function createTaskItem(task) {
+  const li = document.createElement("li");
+
+  if (state.editingId === task.id) {
+    li.appendChild(createEditUI(task));
+  } else {
+    li.appendChild(createNormalUI(task));
+    li.appendChild(createButtonGroup(task));
+  }
+
+  return li;
+}
+
+//通常UI作成(ボタン以外)
+function createNormalUI(task) {
+  const span = document.createElement("span");
+
+  span.textContent =
+    (task.completed ? "☑ " : "□ ") +
+    task.text +
+    (task.deadline ? " 期限:" + task.deadline : "");
+
+  if (task.completed) {
+    span.classList.add("completed");
+  }
+
+  // 期限カラー
+  const status = getDeadlineStatus(task.deadline);
+  if (status === "overdue") {
+    span.classList.add("deadline-overdue");
+  } else if (status === "today") {
+    span.classList.add("deadline-today");
+  }
+
+  span.addEventListener("click", () => {
+    manager.toggleTask(task.id);
+    updateUI();
+  });
+
+  return span;
+}
+
+//通常UI作成(ボタンのみ)
+function createButtonGroup(task) {
+  const buttonGroup = document.createElement("div");
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "編集";
+
+  editBtn.addEventListener("click", () => {
+    state.editingId = task.id;
+    render();
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "削除";
+
+  deleteBtn.addEventListener("click", () => {
+    manager.deleteTask(task.id);
+    updateUI();
+  });
+
+  buttonGroup.appendChild(editBtn);
+  buttonGroup.appendChild(deleteBtn);
+
+  return buttonGroup;
+}
+
+//編集UI作成
+function createEditUI(task) {
+  const container = document.createElement("div");
+
+  const input = document.createElement("input");
+  input.value = task.text;
+
+  const dateInputEdit = document.createElement("input");
+  dateInputEdit.type = "date";
+  dateInputEdit.value = task.deadline || "";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "保存";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "キャンセル";
+
+  saveBtn.addEventListener("click", () => {
+    if (input.value.trim() === "") {
+      alert("タスクを入力してください");
+      return;
+    }
+
+    manager.editTask(task.id, input.value, dateInputEdit.value);
+    state.editingId = null;
+    updateUI();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    state.editingId = null;
+    render();
+  });
+
+  container.appendChild(input);
+  container.appendChild(dateInputEdit);
+  container.appendChild(saveBtn);
+  container.appendChild(cancelBtn);
+
+  return container;
+}
+//日付を判定
+function getDeadlineStatus(deadline) {
+  if (!deadline) return null;
+
+  const today = new Date();
+  const d = new Date(deadline);
+
+  // 時間リセット（純粋に日付だけ比較）
+  today.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+
+  if (d < today) return "overdue";   // 過去 → 赤
+  if (d.getTime() === today.getTime()) return "today"; // 今日 → オレンジ
+
+  return "future";
+}
 
 render();
